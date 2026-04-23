@@ -1,2 +1,1 @@
-# Python_projects
-A multi-player dice rolling game built in Python. Supports 2–4 players, customizable winning scores, dynamic dice scaling, and a turn-based bust mechanic.
+Self-taught developer working toward a career in cybersecurity and SOC analysis. Using hands-on projects to sharpen my Python skills and deepen my understanding of security fundamentals.

@@ -1,0 +1,143 @@
+import random
+# We import the 'random' module so we can generate random numbers.
+# Modules are pre-built tools Python gives us — we just have to import them.
+
+
+def roll(max_value):
+    # This is a FUNCTION — a reusable block of code we can call by name.
+    # It takes one input (max_value) which we decide when we call it.
+    min_value = 1
+    result = random.randint(min_value, max_value)
+    # random.randint(a, b) gives a random whole number between a and b (inclusive).
+    return result
+    # 'return' sends the result back to wherever the function was called from.
+
+
+# ── GETTING THE NUMBER OF PLAYERS ─────────────────────────────────────────────
+
+while True:
+    # 'while True' = loop forever until we explicitly break out of it.
+    # We use this pattern when we don't know how many tries the user needs.
+    players = input("Enter number of players (2-4): ")
+    # input() always gives us a STRING, even if the user types a number.
+    if players.isdigit():
+        # .isdigit() checks if every character is a number — guards against letters/symbols.
+        players = int(players)
+        # Now we convert the string "3" into the actual integer 3.
+        if 2 <= players <= 4:
+            break
+            # Valid input — exit the loop and move on.
+        else:
+            print("Must be between 2-4 players.")
+    else:
+        print("Invalid, try again.")
+# The pattern here: validate input type first, then validate the value. Always in that order.
+
+
+# ── GETTING THE WINNING SCORE ──────────────────────────────────────────────────
+
+while True:
+    max_score = input("Enter the winning score (10 or higher): ")
+    if max_score.isdigit():
+        max_score = int(max_score)
+        if max_score >= 10:
+            break
+        else:
+            print("Winning score must be 10 or higher.")
+    else:
+        print("Invalid, try again.")
+# Same input validation pattern as above — reusing what we just learned.
+
+
+# ── SETTING UP THE DICE ────────────────────────────────────────────────────────
+
+max_roll = max(6, max_score // 10)
+# '//' is integer (floor) division — drops the decimal. 50 // 10 = 5, not 5.0.
+# max(a, b) returns the larger of two values.
+# This scales the dice size with the winning score so games don't take forever.
+# Example: winning score 100 → max_roll = max(6, 10) = 10-sided dice.
+print("Dice will roll between 1 and", max_roll, "\n")
+# '\n' prints a blank line — just for readability in the terminal.
+
+
+# ── CREATING PLAYER SCORES ─────────────────────────────────────────────────────
+
+player_scores = [0 for _ in range(players)]
+# This is a LIST COMPREHENSION — a compact way to build a list.
+# range(players) generates numbers 0, 1, 2... up to players-1.
+# The _ means "I don't actually need this number, just repeat the action."
+# Result for 3 players: [0, 0, 0]
+# Each index (0, 1, 2) represents a player's total score.
+
+
+# ── MAIN GAME LOOP ─────────────────────────────────────────────────────────────
+
+while max(player_scores) < max_score:
+    # Keep playing rounds until someone hits or exceeds the winning score.
+    # max() on a list returns the highest value in it.
+
+    for player_idx in range(players):
+        # 'for' loops over each player index in order: 0, 1, 2...
+        # player_idx is 0-based (starts at 0), so we print player_idx + 1 for humans.
+        print("\n" + "-" * 30)
+        # "-" * 30 repeats the string 30 times — quick way to draw a divider line.
+        print("Player", player_idx + 1, "turn has just started!")
+        print("Your total score is:", player_scores[player_idx])
+        # player_scores[player_idx] accesses this player's score from the list by index.
+        print("-" * 30 + "\n")
+        current_score = 0
+        # This tracks score earned THIS TURN ONLY — resets every turn.
+        # Separate from player_scores[player_idx] which is the running total.
+
+        while True:
+            # Inner loop — keeps asking the player to roll until they stop or bust.
+            should_roll = input("Would you like to roll (y)? ")
+            if should_roll.lower() != 'y':
+                break
+            # .lower() converts input to lowercase so 'Y' and 'y' both work.
+            # Anything other than 'y' ends the player's turn.
+
+            value = roll(max_roll)
+            # Here we CALL our function from the top — this is why we defined it.
+            current_score += value
+            # '+=' is shorthand for current_score = current_score + value.
+            print("You rolled a:", value)
+            print("Your score is:", current_score)
+
+            if player_scores[player_idx] + current_score == max_score:
+                # Exact match — instant win condition.
+                # We check total + current together, not just current.
+                print("You hit the exact score! You win!")
+                break
+            elif player_scores[player_idx] + current_score > max_score:
+                # Gone over — bust! Lose everything earned this turn.
+                print("You went over! You lose your turn score!")
+                current_score = 0
+                # Resetting to 0 means when we add it to the total below, nothing changes.
+                break
+
+        player_scores[player_idx] += current_score
+        # After the turn ends (voluntarily or bust), add turn score to running total.
+        # If busted, current_score is already 0 so nothing is added.
+        print("Your total score is:", player_scores[player_idx])
+
+    # ── SCOREBOARD (printed after every full round) ────────────────────────────
+    print("\n" + "=" * 30)
+    print("       SCOREBOARD")
+    print("=" * 30)
+    for idx in range(players):
+        print("Player", idx + 1, ":", player_scores[idx])
+        # Loop through the scores list and print each one.
+    print("=" * 30 + "\n")
+
+
+# ── WINNER ANNOUNCEMENT ────────────────────────────────────────────────────────
+
+winning_score = max(player_scores)
+# max() finds the highest score in the list.
+winning_idx = player_scores.index(winning_score)
+# .index() finds the position of that value in the list — gives us the player number.
+print("\n" + "=" * 30)
+print("Player number", winning_idx + 1, "is the winner with a score of:", winning_score)
+# +1 again because humans count from 1, lists count from 0.
+print("=" * 30 + "\n")
